@@ -66,3 +66,49 @@ end else if оценка >= 4 then begin
 end else begin
   Foenu-x text-(#надо стараться#);
 end;
+
+// ===== Новое в 26.10.10 =====
+
+// Массивы
+var список be [10, 20, 30];
+Foenu-x список[0];
+список[1] := 99;
+push(список, 40);
+Foenu-x список;
+Foenu-x len(список);
+Foenu-x len(#привет#);
+Foenu-x список + [50, 60];
+
+// for
+var итог2 be 0;
+for i := 1 to 5 begin
+  итог2 := итог2 + i;
+end;
+Foenu-x итог2;
+
+for i := 3 downto 1 begin
+  Foenu-x i;
+end;
+
+// break
+var x2 be 0;
+while true begin
+  x2 := x2 + 1;
+  if x2 > 3 then begin
+    break;
+  end;
+end;
+Foenu-x x2;
+
+// % и встроенные
+Foenu-x 17 % 5;
+Foenu-x upper(#abc#);
+Foenu-x lower(#ABC#);
+Foenu-x abs(0 - 7);
+Foenu-x min(3, 8);
+Foenu-x max(3, 8);
+Foenu-x num(#42#) + 1;
+Foenu-x pop([1, 2, 3]);
+
+// индекс текста
+Foenu-x #привет# [0];

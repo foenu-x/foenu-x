@@ -43,7 +43,11 @@
         },
         {
           "name": "keyword.other.foenu-x",
-          "match": "\\b(var|be|if|then|else|while|begin|end|function|return)\\b"
+          "match": "\\b(var|be|if|then|else|while|begin|end|function|return|for|downto|to)\\b"
+        },
+        {
+          "name": "keyword.control.flow.foenu-x",
+          "match": "\\b(break|continue)\\b"
         },
         {
           "name": "keyword.operator.logical.foenu-x",
@@ -91,11 +95,11 @@
         },
         {
           "name": "keyword.operator.arithmetic.foenu-x",
-          "match": "[+\\-*/]"
+          "match": "[+\\-*/%]"
         },
         {
           "name": "punctuation.foenu-x",
-          "match": "[();,]"
+          "match": "[();,\\[\\]]"
         }
       ]
     }

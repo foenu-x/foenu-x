@@ -98,7 +98,7 @@ def repl():
                 print(HELP)
                 continue
             if stripped == "version":
-                print("Foenu-x 1.0 (БЕТА)")
+                print("Foenu-x 26.10.10 (БЕТА)")
                 continue
             if stripped == "clear":
                 import os
@@ -133,7 +133,7 @@ def main(argv):
         print("REPL:          python main.py")
         return 0
     if argv[0] in ("-v", "--version"):
-        print("Foenu-x 1.0")
+        print("Foenu-x 26.10.10")
         return 0
     return run_file(argv[0])
 

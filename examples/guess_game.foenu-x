@@ -1,0 +1,22 @@
+// Игра "Угадай число" (новое в 26.10.10: input, random, num)
+// Запуск: python main.py examples\guess_game.foenu-x
+
+var секрет be random(1, 10);
+var попыток be 0;
+
+Foenu-x text-(#Я загадал число от 1 до 10. Угадывай!#);
+
+while true begin
+  var ввод be input(#Твоё число: #);
+  var число be num(ввод);
+  попыток := попыток + 1;
+
+  if число = секрет then begin
+    Foenu-x text-(#Угадал за #) + попыток + text-(# попыток!#);
+    break;
+  end else if число < секрет then begin
+    Foenu-x text-(#Больше#);
+  end else begin
+    Foenu-x text-(#Меньше#);
+  end;
+end;

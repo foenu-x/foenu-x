@@ -116,7 +116,7 @@
       <span class="badge">расширение <b>.foenu-x</b></span>
       <span class="badge">интерпретатор на <b>Python</b></span>
       <span class="badge">синтаксис <b>begin / end</b></span>
-      <span class="badge">версия <b>1.0</b></span>
+      <span class="badge">версия <b>26.10.10</b></span>
     </div>
   </div>
 </header>
@@ -208,14 +208,45 @@
       <tr><td>Превращение в текст</td><td><code>text-(выражение)</code></td></tr>
       <tr><td>Переменная</td><td><code>var имя be значение;</code></td></tr>
       <tr><td>Присваивание</td><td><code>имя := значение;</code></td></tr>
+      <tr><td>Массив</td><td><code>var a be [1, 2, 3];</code></td></tr>
+      <tr><td>Элемент массива</td><td><code>a[0]</code> · изменить: <code>a[0] := 5;</code></td></tr>
       <tr><td>Условие</td><td><code>if ... then begin ... end else begin ... end;</code></td></tr>
       <tr><td>Цикл</td><td><code>while условие begin ... end;</code></td></tr>
+      <tr><td>Цикл со счётчиком</td><td><code>for i := 1 to 5 begin ... end;</code></td></tr>
+      <tr><td>Обратный отсчёт</td><td><code>for i := 5 downto 1 begin ... end;</code></td></tr>
+      <tr><td>Выход из цикла</td><td><code>break;</code> · <code>continue;</code></td></tr>
       <tr><td>Функция</td><td><code>function имя(арг) begin ... end;</code></td></tr>
       <tr><td>Возврат</td><td><code>return значение;</code></td></tr>
       <tr><td>Команда ОС</td><td><code>CMD(#команда#);</code></td></tr>
+      <tr><td>Ввод</td><td><code>input(#приглашение#)</code></td></tr>
+      <tr><td>Встроенные функции</td><td><code>len push pop upper lower abs min max random num</code></td></tr>
       <tr><td>Логика</td><td><code>and</code>, <code>or</code>, <code>not</code>, <code>true</code>, <code>false</code></td></tr>
-      <tr><td>Операторы</td><td><code>+ - * /</code>, <code>= == !=</code>, <code>&gt; &lt; &gt;= &lt;=</code>, скобки</td></tr>
+      <tr><td>Операторы</td><td><code>+ - * / %</code>, <code>= == !=</code>, <code>&gt; &lt; &gt;= &lt;=</code>, скобки</td></tr>
     </table>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">08</span>Что нового в 26.10.10</h2>
+    <p class="lead">Большое обновление: массивы, цикл for, break/continue, остаток от деления, встроенные функции и ввод с клавиатуры.</p>
+    <pre><span class="c">// Массивы и for</span>
+<span class="k">var</span> числа <span class="k">be</span> [<span class="n">10</span>, <span class="n">20</span>, <span class="n">30</span>];
+<span class="k">var</span> сумма <span class="k">be</span> <span class="n">0</span>;
+<span class="k">for</span> i := <span class="n">0</span> <span class="k">to</span> len(числа) - <span class="n">1</span> <span class="k">begin</span>
+  сумма := сумма + числа[i];
+<span class="k">end</span>;
+<span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Сумма: #</span>) + сумма;
+<span class="f">Foenu-x</span> <span class="n">17</span> % <span class="n">5</span>;   <span class="c">// остаток = 2</span></pre>
+    <pre><span class="c">// Игра: угадай число (input + random + num)</span>
+<span class="k">var</span> секрет <span class="k">be</span> random(<span class="n">1</span>, <span class="n">10</span>);
+<span class="k">while</span> <span class="k">true</span> <span class="k">begin</span>
+  <span class="k">var</span> число <span class="k">be</span> num(input(<span class="s">#Твоё число: #</span>));
+  <span class="k">if</span> число = секрет <span class="k">then</span> <span class="k">begin</span>
+    <span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Угадал!#</span>);
+    <span class="k">break</span>;
+  <span class="k">end</span>;
+<span class="k">end</span>;</pre>
   </div>
 </section>
 

@@ -14,16 +14,17 @@ KEYWORDS = {
     "Foenu-x", "text-", "var", "be", "if", "then", "else",
     "while", "begin", "end", "function", "return", "CMD",
     "and", "or", "not", "true", "false",
+    "for", "to", "downto", "break", "continue",
 }
 
 MASTER = re.compile(
     r"""
       (?P<COMMENT>//[^\n]*)
-    | (?P<KEYWORD>(?:Foenu-x|text-|var|be|if|then|else|while|begin|end|function|return|CMD|and|or|not|true|false)(?![\w]))
+    | (?P<KEYWORD>(?:Foenu-x|text-|var|be|if|then|else|while|begin|end|function|return|CMD|and|or|not|true|false|for|downto|to|break|continue)(?![\w]))
     | (?P<NUMBER>\d+(?:\.\d+)?)
     | (?P<TEXT>\#[^#\n]*\#)
     | (?P<IDENT>[^\W\d]\w*)
-    | (?P<OP>:=|==|!=|>=|<=|[><+\-*/=(),;])
+    | (?P<OP>:=|==|!=|>=|<=|[><+\-*/%=(),;\[\]])
     | (?P<NEWLINE>\n)
     | (?P<SKIP>[ \t\r]+)
     """,

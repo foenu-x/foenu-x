@@ -125,16 +125,16 @@ STATUS_TEXTS = [
     "Это значит, что ядро уже способно выполнять реальные программы, "
     "но API и полный набор типов ещё могут меняться.",
 
-    "Текущее положение дел: Foenu-x 1.0 в стадии БЕТА. Работает офлайн, "
+    "Текущее положение дел: Foenu-x 26.10.10 в стадии БЕТА. Работает офлайн, "
     "на одном компьютере, без серверной части. Всё хранится в обычных файлах .foenu-x.",
 ]
 
 PLANS_TEXTS = [
     "Дорожная карта Foenu-x: ядро на C++ для скорости, расширение для VS Code "
-    "с подсветкой синтаксиса, массивы и таблицы, нормальная работа со строками, "
-    "возможно свёртка в байт-код. Пока всё это в планах — движок уже есть.",
+    "с подсветкой синтаксиса, таблицы, нормальная работа со строками, "
+    "возможно свёртка в байт-код. Массивы и цикл for уже сделаны в 26.10.10.",
 
-    "Что дальше для Foenu-x: типы (int, text, bool), массивы, модули (include), "
+    "Что дальше для Foenu-x: типы (int, text, bool), модули (include), "
     "стандартная библиотека, компиляция в байт-код и, может быть, серверный режим "
     "для одновременной работы нескольких пользователей. Сейчас серверов ноль — "
     "язык намеренно локальный.",
@@ -234,6 +234,32 @@ QA_POOL = [
     ("Можно ли запускать Foenu-x на сервере?",
      "Технически да — это обычный скрипт на Python. Но в проекте 0 серверов: "
      "штатный режим — один локальный компьютер."),
+    ("Как создать массив?",
+     "Через квадратные скобки: var числа be [1, 2, 3];. Элементы разделяются запятыми, пустой массив — []."),
+    ("Как обратиться к элементу массива?",
+     "Через индекс в скобках: числа[0] — первый элемент. Счёт с нуля: первый элемент — 0, второй — 1."),
+    ("Как изменить элемент массива?",
+     "Присваиванием по индексу: числа[1] := 99;. Работает и чтение: Foenu-x числа[1];."),
+    ("Как узнать длину массива или текста?",
+     "Встроенной функцией len: len([1, 2, 3]) → 3, len(#привет#) → 6."),
+    ("Как добавить и убрать элемент?",
+     "push(массив, элемент) добавляет в конец, pop(массив) убирает последний и возвращает его."),
+    ("Есть ли цикл со счётчиком?",
+     "Да: for i := 1 to 5 begin ... end; — вперёд, for i := 5 downto 1 begin ... end; — назад. "
+     "Границы включаются в цикл."),
+    ("Что делают break и continue?",
+     "break немедленно выходит из цикла, continue пропускает текущую итерацию и переходит к следующей."),
+    ("Есть ли остаток от деления?",
+     "Да, оператор %: 17 % 5 даёт 2. Приоритет такой же, как у * и /."),
+    ("Какие встроенные функции есть?",
+     "len, push, pop, upper, lower, abs, min, max, random(от, до), num(текст→число), input(приглашение)."),
+    ("Как читать ввод пользователя?",
+     "Функцией input: var ответ be input(#Твоё число: #);. Она возвращает текст — для сравнения с числом "
+     "преврати его: num(ответ)."),
+    ("Есть ли случайные числа?",
+     "Да: random(1, 10) возвращает случайное целое от 1 до 10 включительно."),
+    ("Можно ли индексировать текст?",
+     "Да: #привет# [0] даёт один символ #п#. Изменить символ текста нельзя — только читать."),
 ]
 
 ERRORS = [
@@ -287,6 +313,16 @@ ERRORS = [
         "Не закрыта скобка: каждая ( должна иметь парную ).",
         "Foenu-x (1 + 2);\n",
     ),
+    (
+        "var a be [1, 2, 3];\nFoenu-x a[5];\n",
+        "Индекс вне диапазона: у массива из 3 элементов допустимы индексы 0..2.",
+        "var a be [1, 2, 3];\nFoenu-x a[0];\n",
+    ),
+    (
+        "for i := 1 5 begin\n  Foenu-x i;\nend;\n",
+        "После первой границы цикла обязательно to (вперёд) или downto (назад).",
+        "for i := 1 to 5 begin\n  Foenu-x i;\nend;\n",
+    ),
 ]
 
 ARTICLES = [
@@ -313,6 +349,21 @@ ARTICLES = [
         "foenux/interpreter.py (выполнение). Папка examples/ хранит готовые программы, "
         "tools/ — утилиты разработки, data/ — сгенерированные материалы.\n\n" + rnd.choice(ARCHITECTURE)
     )),
+    ("Что нового в v26.10.10", lambda: (
+        "Релиз 26.10.10 (номер по дате) добавил в Foenu-x массивы [1, 2, 3] с индексацией "
+        "с нуля и изменением элементов, цикл со счётчиком for i := от to до "
+        "и обратный вариант downto, операторы break и continue, остаток от деления %, "
+        "встроенные функции len, push, pop, upper, lower, abs, min, max, random, num "
+        "и чтение ввода input(приглашение).\n\n"
+        "На практике это значит: можно писать игры (guess_game.foenu-x — угадай число "
+        "на input, random и num), обрабатывать списки данных, искать элементы, "
+        "суммировать массивы через for. Раньше такие программы писались только "
+        "на голых переменных и while.\n\n"
+        "Технически: лексер научился токенам [ ] % и словам for/to/downto/break/continue, "
+        "в парсере появились узлы ListNode, Index, IndexAssign, For, Break, Continue, "
+        "а интерпретатор получил встроенные функции (BUILTIN_ARITY) и сигналы "
+        "BreakSignal/ContinueSignal для выхода из цикла."
+    )),
 ]
 
 REFERENCE_ROWS = [
@@ -322,15 +373,23 @@ REFERENCE_ROWS = [
     ("В текст", "`text-(выражение)`"),
     ("Переменная", "`var имя be значение;`"),
     ("Присваивание", "`имя := значение;`"),
+    ("Массив", "`var a be [1, 2, 3];`"),
+    ("Элемент массива", "`a[0]`"),
+    ("Изменить элемент", "`a[0] := 5;`"),
     ("Условие", "`if ... then begin ... end else begin ... end;`"),
     ("Цикл", "`while условие begin ... end;`"),
+    ("Цикл со счётчиком", "`for i := 1 to 5 begin ... end;`"),
+    ("Обратный отсчёт", "`for i := 5 downto 1 begin ... end;`"),
+    ("Выход из цикла", "`break;` и `continue;`"),
     ("Функция", "`function имя(арг) begin ... end;`"),
     ("Возврат", "`return значение;`"),
     ("Команда ОС", "`CMD(#команда#);`"),
+    ("Ввод", "`input(#приглашение#)`"),
+    ("Встроенные функции", "`len push pop upper lower abs min max random num`"),
     ("Логика", "`and`, `or`, `not`, `true`, `false`"),
-    ("Арифметика", "`+ - * /`"),
+    ("Арифметика", "`+ - * /` и остаток `%`"),
     ("Сравнение", "`= == !=` `> < >= <=`"),
-    ("Скобки", "`( )` — приоритет выражений"),
+    ("Скобки", "`( )` и `[ ]`"),
 ]
 
 CHANGELOG = [
@@ -344,6 +403,9 @@ CHANGELOG = [
     "0.8 — REPL с многострочным буфером begin/end;",
     "0.9 — понятные сообщения об ошибках с номерами строк;",
     "1.0 — выход в статус БЕТА: 1 компьютер, 0 серверов.",
+    "26.10.10 — массивы [ ] и индексы, цикл for с to/downto, break и continue, "
+    "оператор остатка %, встроенные функции (len, push, pop, upper, lower, abs, "
+    "min, max, random, num), ввод input(); версия стала по дате релиза.",
 ]
 
 EN_TEXTS = [
@@ -370,6 +432,14 @@ EN_TEXTS = [
 
     "The CMD statement executes a shell command: CMD(#echo hi#); — "
     "the standard output of the command is printed to the console.",
+
+    "Version 26.10.10 added arrays with zero-based indexing, the for loop with to "
+    "and downto directions, break and continue, the modulo operator %, and built-in "
+    "functions such as len, push, pop, upper, lower, abs, min, max, random and num.",
+
+    "Reading user input is done with input: var answer be input(#Your number: #); "
+    "It returns text, so convert it with num() before comparing with numbers. "
+    "Together with random(1, 10) this is enough to write a guessing game.",
 ]
 
 
@@ -635,6 +705,147 @@ def gen_text_ops():
     return code, True
 
 
+def gen_arrays():
+    vals = [rnd.randint(1, 99) for _ in range(rnd.randint(3, 5))]
+    lst = ", ".join(str(v) for v in vals)
+    (acc,) = pick(1, "индекс")
+    mode = rnd.randrange(3)
+    if mode == 0:
+        body = (
+            f"var числа be [{lst}];\n"
+            f"var {acc} be 0;\n"
+            "for i := 0 to len(числа) - 1 begin\n"
+            f"  {acc} := {acc} + числа[i];\n"
+            "end;\n"
+            f"Foenu-x text-(#сумма: #) + {acc};\n"
+            f"Foenu-x text-(#длина: #) + len(числа);"
+        )
+    elif mode == 1:
+        (idx,) = pick(1, "значение")
+        body = (
+            f"var числа be [{lst}];\n"
+            f"var {idx} be {rnd.randint(0, len(vals) - 1)};\n"
+            "числа[0] := 100;\n"
+            f"Foenu-x text-(#первый: #) + числа[0];\n"
+            f"Foenu-x text-(#элемент {idx}: #) + числа[{idx}];"
+        )
+    else:
+        body = (
+            f"var данные be [{lst}];\n"
+            "push(данные, 777);\n"
+            f"Foenu-x text-(#длина с push: #) + len(данные);\n"
+            "Foenu-x pop(данные);\n"
+            f"Foenu-x text-(#длина с pop: #) + len(данные);"
+        )
+    code = "// Массивы: создание, индексы, push и pop\n" + body
+    return code, True
+
+
+def gen_for():
+    n = rnd.randint(3, 7)
+    mode = rnd.randrange(3)
+    if mode == 0:
+        code = (
+            "// Цикл for с нарастающим счётчиком\n"
+            "var сумма be 0;\n"
+            f"for i := 1 to {n} begin\n"
+            "  сумма := сумма + i;\n"
+            "end;\n"
+            f"Foenu-x text-(#сумма 1..{n}: #) + сумма;"
+        )
+    elif mode == 1:
+        code = (
+            "// Обратный цикл downto\n"
+            f"for i := {n} downto 1 begin\n"
+            "  Foenu-x text-(#осталось #) + i;\n"
+            "end;\n"
+            "Foenu-x text-(#поехали#);"
+        )
+    else:
+        code = (
+            "// Цикл for по встроенной функции len\n"
+            f"var строка be #{rnd.choice(TEXTS)}#;\n"
+            "for i := 0 to len(строка) - 1 begin\n"
+            "  Foenu-x строка[i];\n"
+            "end;"
+        )
+    return code, True
+
+
+def gen_break():
+    limit = rnd.randint(3, 6)
+    mode = rnd.randrange(3)
+    if mode == 0:
+        code = (
+            "// break выходит из цикла\n"
+            f"for i := 1 to 100 begin\n"
+            f"  if i = {limit} then begin\n"
+            "    Foenu-x text-(#хватит: #) + i;\n"
+            "    break;\n"
+            "  end;\n"
+            "end;\n"
+            "Foenu-x text-(#после цикла#);"
+        )
+    elif mode == 1:
+        code = (
+            "// continue пропускает нечётные\n"
+            "var чётная_сумма be 0;\n"
+            "for i := 1 to 10 begin\n"
+            "  if i % 2 != 0 then begin\n"
+            "    continue;\n"
+            "  end;\n"
+            "  чётная_сумма := чётная_сумма + i;\n"
+            "end;\n"
+            "Foenu-x text-(#сумма чётных: #) + чётная_сумма;"
+        )
+    else:
+        code = (
+            "// break в while\n"
+            f"var осталось be {limit};\n"
+            "while true begin\n"
+            "  осталось := осталось - 1;\n"
+            "  if осталось = 0 then begin\n"
+            "    break;\n"
+            "  end;\n"
+            "end;\n"
+            "Foenu-x text-(#готово#);"
+        )
+    return code, True
+
+
+def gen_builtins():
+    mode = rnd.randrange(4)
+    t = rnd.choice(TEXTS)
+    a = rnd.randint(1, 30)
+    if mode == 0:
+        code = (
+            "// Текстовые функции\n"
+            f"Foenu-x upper(#{t}#);\n"
+            f"Foenu-x lower(#{t.upper()}#);\n"
+            f"Foenu-x len(#{t}#);"
+        )
+    elif mode == 1:
+        code = (
+            "// Математические функции\n"
+            f"Foenu-x abs({-a});\n"
+            f"Foenu-x min({a}, {a + rnd.randint(1, 20)});\n"
+            f"Foenu-x max({a}, {a + rnd.randint(1, 20)});"
+        )
+    elif mode == 2:
+        code = (
+            "// Случайное число\n"
+            "var бросок be random(1, 6);\n"
+            "Foenu-x text-(#бросок кубика: #) + бросок;"
+        )
+    else:
+        code = (
+            "// num превращает текст в число\n"
+            f"var текст be #{a}#;\n"
+            "Foenu-x num(текст) + 1;"
+        )
+    return code, True
+
+
 PROGRAM_GENS = [
     (gen_prints, 3),
     (gen_vars, 3),
@@ -644,6 +855,10 @@ PROGRAM_GENS = [
     (gen_cmd, 1),
     (gen_mixed, 2),
     (gen_text_ops, 2),
+    (gen_arrays, 3),
+    (gen_for, 3),
+    (gen_break, 2),
+    (gen_builtins, 3),
 ]
 
 PROGRAM_FUNCS = [g for g, w in PROGRAM_GENS]
@@ -703,10 +918,10 @@ def section_program(i):
 
 def section_changelog(i):
     picks = rnd.sample(CHANGELOG, k=rnd.randint(4, len(CHANGELOG)))
-    picks.sort(key=lambda s: float(s.split(" ")[0]))
+    picks.sort(key=lambda s: tuple(int(x) for x in s.split(" ")[0].split(".")))
     out = f"\n---\n\n## Раздел {i}. История версий Foenu-x\n\n"
     out += "\n".join(f"- {p}" for p in picks)
-    out += "\n\nТекущая версия — 1.0, статус БЕТА.\n"
+    out += "\n\nТекущая версия — 26.10.10, статус БЕТА.\n"
     return out
 
 
@@ -743,6 +958,7 @@ def build_header():
 | Поле | Значение |
 |---|---|
 | Название языка | Foenu-x |
+| Версия | **26.10.10** |
 | Расширение файлов | `.foenu-x` |
 | Интерпретатор | Python 3 (лексер → парсер → исполнитель) |
 | Синтаксис | Pascal-стиль: `begin` / `end` |

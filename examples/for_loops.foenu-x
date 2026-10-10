@@ -1,0 +1,28 @@
+// Цикл for (новое в 26.10.10)
+Foenu-x text-(#Счёт вперёд:#);
+for i := 1 to 5 begin
+  Foenu-x i;
+end;
+
+Foenu-x text-(#Обратный отсчёт:#);
+for i := 5 downto 1 begin
+  Foenu-x i;
+end;
+
+// break — досрочный выход
+Foenu-x text-(#Ищем первую чётную:#);
+for i := 1 to 100 begin
+  if i % 2 = 0 then begin
+    Foenu-x text-(#Нашли: #) + i;
+    break;
+  end;
+end;
+
+// continue — пропуск итерации
+Foenu-x text-(#Только нечётные:#);
+for i := 1 to 10 begin
+  if i % 2 = 0 then begin
+    continue;
+  end;
+  Foenu-x i;
+end;

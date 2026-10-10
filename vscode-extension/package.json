@@ -2,7 +2,7 @@
   "name": "foenu-x",
   "displayName": "Foenu-x",
   "description": "Язык программирования Foenu-x: подсветка синтаксиса для файлов .foenu-x",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "publisher": "foenu-x-project",
   "license": "MIT",
   "engines": {

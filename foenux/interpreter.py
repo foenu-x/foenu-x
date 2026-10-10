@@ -1,12 +1,14 @@
 """Интерпретатор языка Foenu-x: выполняет AST."""
 
+import random as _random
 import subprocess
 import sys
 
 from .lexer import FoenuSyntaxError
 from .parser import (
-    Num, Text, Bool, Var, Unary, Binary, Call, TextCast,
+    Num, Text, Bool, Var, Unary, Binary, Call, TextCast, ListNode, Index,
     Print, Cmd, VarDecl, Assign, If, While, FunctionDecl, Return, ExprStmt,
+    IndexAssign, For, Break, Continue,
     parse,
 )
 
@@ -20,6 +22,14 @@ class FoenuRuntimeError(Exception):
 class ReturnSignal(Exception):
     def __init__(self, value):
         self.value = value
+
+
+class BreakSignal(Exception):
+    pass
+
+
+class ContinueSignal(Exception):
+    pass
 
 
 class Environment:
@@ -59,6 +69,8 @@ def to_str(value):
         return "nil"
     if isinstance(value, bool):
         return "true" if value else "false"
+    if isinstance(value, list):
+        return "[" + ", ".join(to_str(v) for v in value) + "]"
     if isinstance(value, float) and value.is_integer():
         return str(int(value))
     if isinstance(value, float):
@@ -72,6 +84,8 @@ def truthy(value):
     if isinstance(value, (int, float)):
         return value != 0
     if isinstance(value, str):
+        return len(value) > 0
+    if isinstance(value, list):
         return len(value) > 0
     return bool(value)
 
@@ -94,6 +108,8 @@ class Interpreter:
             self.exec_block(program, self.globals)
         except ReturnSignal:
             raise FoenuRuntimeError("return вне функции", 1) from None
+        except (BreakSignal, ContinueSignal):
+            raise FoenuRuntimeError("break/continue вне цикла", 1) from None
 
     # ----- Выполнение инструкций -----
 
@@ -121,7 +137,26 @@ class Interpreter:
                 self.exec_block(stmt.else_block, Environment(env))
         elif isinstance(stmt, While):
             while truthy(self.eval(stmt.cond, env)):
-                self.exec_block(stmt.body, Environment(env))
+                try:
+                    self.exec_block(stmt.body, Environment(env))
+                except BreakSignal:
+                    break
+                except ContinueSignal:
+                    continue
+        elif isinstance(stmt, For):
+            self.exec_for(stmt, env)
+        elif isinstance(stmt, Break):
+            raise BreakSignal()
+        elif isinstance(stmt, Continue):
+            raise ContinueSignal()
+        elif isinstance(stmt, IndexAssign):
+            obj = self.eval(stmt.obj, env)
+            idx = self.eval(stmt.index, env)
+            value = self.eval(stmt.value, env)
+            if not isinstance(obj, list):
+                raise FoenuRuntimeError("изменять по индексу можно только массив", stmt.line)
+            i = self.index_of(obj, idx, stmt.line)
+            obj[i] = value
         elif isinstance(stmt, FunctionDecl):
             env.define(stmt.name, Function(stmt, env))
         elif isinstance(stmt, Return):
@@ -133,6 +168,37 @@ class Interpreter:
                 print(to_str(value))
         else:
             raise FoenuRuntimeError(f"неизвестная инструкция {stmt!r}", getattr(stmt, "line", 1))
+
+    def exec_for(self, stmt, env):
+        start = self.eval(stmt.start, env)
+        end = self.eval(stmt.end, env)
+        if not is_number(start) or not is_number(end):
+            raise FoenuRuntimeError("границы цикла for должны быть числами", stmt.line)
+        if (isinstance(start, float) and not start.is_integer()) or \
+                (isinstance(end, float) and not end.is_integer()):
+            raise FoenuRuntimeError("границы цикла for должны быть целыми числами", stmt.line)
+        s, e = int(start), int(end)
+        rng = range(s, e - 1, -1) if stmt.downto else range(s, e + 1)
+        for value in rng:
+            env.define(stmt.name, value)
+            try:
+                self.exec_block(stmt.body, Environment(env))
+            except BreakSignal:
+                break
+            except ContinueSignal:
+                continue
+
+    @staticmethod
+    def index_of(obj, idx, line):
+        if not is_number(idx):
+            raise FoenuRuntimeError("индекс должен быть числом", line)
+        if isinstance(idx, float):
+            if not idx.is_integer():
+                raise FoenuRuntimeError("индекс должен быть целым числом", line)
+            idx = int(idx)
+        if idx < 0 or idx >= len(obj):
+            raise FoenuRuntimeError(f"индекс {idx} вне диапазона 0..{len(obj) - 1}", line)
+        return idx
 
     def exec_cmd(self, stmt, env):
         arg = self.eval(stmt.expr, env)
@@ -169,6 +235,15 @@ class Interpreter:
             return env.get(node.name, node.line)
         if isinstance(node, TextCast):
             return to_str(self.eval(node.expr, env))
+        if isinstance(node, ListNode):
+            return [self.eval(item, env) for item in node.items]
+        if isinstance(node, Index):
+            obj = self.eval(node.obj, env)
+            idx = self.eval(node.index, env)
+            if isinstance(obj, (list, str)):
+                i = self.index_of(obj, idx, node.line)
+                return obj[i]
+            raise FoenuRuntimeError("индексировать можно только массив или текст", node.line)
         if isinstance(node, Unary):
             return self.eval_unary(node, env)
         if isinstance(node, Binary):
@@ -205,19 +280,25 @@ class Interpreter:
         right = self.eval(node.right, env)
 
         if op == "+":
+            if isinstance(left, list) and isinstance(right, list):
+                return left + right
             if isinstance(left, str) or isinstance(right, str):
                 return to_str(left) + to_str(right)
             if is_number(left) and is_number(right):
                 return left + right
-            raise FoenuRuntimeError("оператор + работает только с числами или текстом", node.line)
+            raise FoenuRuntimeError("оператор + работает только с числами, текстом или массивами", node.line)
 
-        if op in ("-", "*", "/"):
+        if op in ("-", "*", "/", "%"):
             if not is_number(left) or not is_number(right):
                 raise FoenuRuntimeError(f"оператор {op} работает только с числами", node.line)
             if op == "-":
                 return left - right
             if op == "*":
                 return left * right
+            if op == "%":
+                if right == 0:
+                    raise FoenuRuntimeError("остаток от деления на ноль", node.line)
+                return left % right
             if right == 0:
                 raise FoenuRuntimeError("деление на ноль", node.line)
             if isinstance(left, int) and isinstance(right, int):
@@ -256,9 +337,107 @@ class Interpreter:
             return left == right
         if isinstance(left, str) and isinstance(right, str):
             return left == right
+        if isinstance(left, list) and isinstance(right, list):
+            return left == right
         return False
 
+    BUILTIN_ARITY = {
+        "len": (1, 1), "push": (2, 2), "pop": (1, 1),
+        "upper": (1, 1), "lower": (1, 1),
+        "abs": (1, 1), "min": (2, 2), "max": (2, 2),
+        "random": (2, 2), "num": (1, 1), "input": (0, 1),
+    }
+
+    def call_builtin(self, node, env):
+        name = node.name
+        lo, hi = self.BUILTIN_ARITY[name]
+        if not (lo <= len(node.args) <= hi):
+            if lo == hi:
+                expect = f"{lo} аргументов"
+            else:
+                expect = f"{lo}..{hi} аргументов"
+            raise FoenuRuntimeError(f"{name} ждёт {expect}, получено {len(node.args)}", node.line)
+        args = [self.eval(a, env) for a in node.args]
+
+        if name == "len":
+            x = args[0]
+            if isinstance(x, (str, list)):
+                return len(x)
+            raise FoenuRuntimeError("len работает с текстом или массивом", node.line)
+
+        if name == "push":
+            lst = args[0]
+            if not isinstance(lst, list):
+                raise FoenuRuntimeError("push добавляет элементы только в массив", node.line)
+            lst.append(args[1])
+            return lst
+
+        if name == "pop":
+            lst = args[0]
+            if not isinstance(lst, list):
+                raise FoenuRuntimeError("pop работает только с массивом", node.line)
+            if not lst:
+                raise FoenuRuntimeError("pop: массив пуст", node.line)
+            return lst.pop()
+
+        if name == "upper":
+            x = args[0]
+            if not isinstance(x, str):
+                raise FoenuRuntimeError("upper работает только с текстом", node.line)
+            return x.upper()
+
+        if name == "lower":
+            x = args[0]
+            if not isinstance(x, str):
+                raise FoenuRuntimeError("lower работает только с текстом", node.line)
+            return x.lower()
+
+        if name == "abs":
+            x = args[0]
+            if not is_number(x):
+                raise FoenuRuntimeError("abs работает только с числами", node.line)
+            return abs(x)
+
+        if name in ("min", "max"):
+            a, b = args
+            if not is_number(a) or not is_number(b):
+                raise FoenuRuntimeError(f"{name} работает только с числами", node.line)
+            return min(a, b) if name == "min" else max(a, b)
+
+        if name == "random":
+            a, b = args
+            if not is_number(a) or not is_number(b):
+                raise FoenuRuntimeError("random ждёт два числа", node.line)
+            return _random.randint(int(a), int(b))
+
+        if name == "num":
+            x = args[0]
+            if is_number(x):
+                return x
+            if isinstance(x, str):
+                s = x.strip()
+                try:
+                    return int(s)
+                except ValueError:
+                    try:
+                        return float(s)
+                    except ValueError:
+                        raise FoenuRuntimeError(f"num: текст {x!r} не похож на число", node.line) from None
+            raise FoenuRuntimeError("num превращает текст в число", node.line)
+
+        if name == "input":
+            prompt = to_str(args[0]) if args else ""
+            try:
+                return input(prompt)
+            except EOFError:
+                raise FoenuRuntimeError("input: ввод закончился", node.line) from None
+
+        raise FoenuRuntimeError(f"неизвестная встроенная функция {name!r}", node.line)
+
     def eval_call(self, node, env):
+        if node.name in self.BUILTIN_ARITY:
+            return self.call_builtin(node, env)
+
         callee = env.get(node.name, node.line)
 
         if isinstance(callee, Function):

@@ -60,6 +60,19 @@ class TextCast:
     line: int
 
 
+@dataclass
+class ListNode:
+    items: list
+    line: int
+
+
+@dataclass
+class Index:
+    obj: object
+    index: object
+    line: int
+
+
 # ---------- Инструкции ----------
 
 @dataclass
@@ -120,6 +133,34 @@ class Return:
 @dataclass
 class ExprStmt:
     expr: object
+    line: int
+
+
+@dataclass
+class IndexAssign:
+    obj: object
+    index: object
+    value: object
+    line: int
+
+
+@dataclass
+class For:
+    name: str
+    start: object
+    end: object
+    downto: bool
+    body: list
+    line: int
+
+
+@dataclass
+class Break:
+    line: int
+
+
+@dataclass
+class Continue:
     line: int
 
 
@@ -231,6 +272,19 @@ class Parser:
                 self.match("OP", ";")
                 return While(cond, body, line)
 
+            if tok.value == "for":
+                return self.for_statement()
+
+            if tok.value == "break":
+                self.advance()
+                self.match("OP", ";")
+                return Break(tok.line)
+
+            if tok.value == "continue":
+                self.advance()
+                self.match("OP", ";")
+                return Continue(tok.line)
+
             if tok.value == "function":
                 return self.function_statement()
 
@@ -244,18 +298,38 @@ class Parser:
                 self.match("OP", ";")
                 return Return(expr, line)
 
-        if tok.type == "IDENT" and self.tokens[self.pos + 1].type == "OP" \
-                and self.tokens[self.pos + 1].value == ":=":
-            self.advance()
-            self.advance()
-            line = tok.line
-            expr = self.expression()
-            self.match("OP", ";")
-            return Assign(tok.value, expr, line)
-
         expr = self.expression()
+        if self.match("OP", ":="):
+            value = self.expression()
+            self.match("OP", ";")
+            if isinstance(expr, Var):
+                return Assign(expr.name, value, expr.line)
+            if isinstance(expr, Index):
+                return IndexAssign(expr.obj, expr.index, value, expr.line)
+            raise FoenuSyntaxError(
+                "присваивать можно только переменной или элементу массива [индекс]", expr.line
+            )
         self.match("OP", ";")
         return ExprStmt(expr, tok.line)
+
+    def for_statement(self):
+        tok = self.advance()  # for
+        line = tok.line
+        name = self.expect_ident("после for нужно имя переменной цикла")
+        self.expect("OP", ":=", "после имени переменной цикла ожидается :=")
+        start = self.expression()
+        if self.match("KEYWORD", "downto"):
+            downto = True
+        elif self.match("KEYWORD", "to"):
+            downto = False
+        else:
+            p = self.peek()
+            shown = p.value if p.type != "EOF" else "конец файла"
+            raise FoenuSyntaxError(f"после границы цикла ожидается to или downto (найдено {shown!r})", p.line)
+        end = self.expression()
+        body = self.block()
+        self.match("OP", ";")
+        return For(name.value, start, end, downto, body, line)
 
     def if_statement(self):
         tok = self.advance()  # if
@@ -342,7 +416,7 @@ class Parser:
 
     def factor(self):
         left = self.unary()
-        while self.check("OP", "*") or self.check("OP", "/"):
+        while self.check("OP", "*") or self.check("OP", "/") or self.check("OP", "%"):
             op = self.advance().value
             line = self.previous().line
             right = self.unary()
@@ -354,7 +428,16 @@ class Parser:
             op = self.advance()
             operand = self.unary()
             return Unary(op.value, operand, op.line)
-        return self.primary()
+        return self.postfix()
+
+    def postfix(self):
+        node = self.primary()
+        while self.check("OP", "["):
+            self.advance()
+            idx = self.expression()
+            self.expect("OP", "]", "не закрыта скобка ] у индекса")
+            node = Index(node, idx, node.line)
+        return node
 
     def primary(self):
         tok = self.peek()
@@ -398,6 +481,17 @@ class Parser:
             expr = self.expression()
             self.expect("OP", ")", "не закрыта скобка )")
             return expr
+
+        if tok.type == "OP" and tok.value == "[":
+            self.advance()
+            items = []
+            if not self.check("OP", "]"):
+                while True:
+                    items.append(self.expression())
+                    if not self.match("OP", ","):
+                        break
+            self.expect("OP", "]", "не закрыта скобка ] массива")
+            return ListNode(items, tok.line)
 
         shown = tok.value if tok.type != "EOF" else "конец файла"
         raise FoenuSyntaxError(f"неожиданное начало выражения: {shown!r}", tok.line)
