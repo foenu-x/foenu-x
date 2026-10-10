@@ -1,0 +1,3 @@
+﻿// Запуск команд оболочки через CMD(...)
+CMD(#echo Hello from CMD#);
+CMD(#powershell -Command "Get-Date"#);

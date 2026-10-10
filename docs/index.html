@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Foenu-x — язык программирования</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --pink: #f778ba;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    line-height: 1.6;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+  header {
+    padding: 60px 0 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 {
+    font-size: 3rem;
+    letter-spacing: -1px;
+  }
+  h1 span { color: var(--accent); }
+  .tagline { color: var(--muted); margin-top: 10px; font-size: 1.1rem; }
+  .badges { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 14px;
+    font-size: .85rem;
+    color: var(--muted);
+  }
+  .badge b { color: var(--green); font-weight: 600; }
+  section { padding: 40px 0; border-bottom: 1px solid var(--border); }
+  h2 { font-size: 1.6rem; margin-bottom: 16px; }
+  h2 .num { color: var(--accent); margin-right: 8px; }
+  p.lead { color: var(--muted); margin-bottom: 20px; }
+  pre {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .95rem;
+    margin-bottom: 16px;
+  }
+  code { font-family: Consolas, "Courier New", monospace; }
+  p code, li code, td code {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-size: .9em;
+    color: var(--orange);
+  }
+  .c { color: var(--muted); }          /* комментарий */
+  .k { color: var(--pink); }           /* ключевое слово */
+  .s { color: var(--green); }          /* текст */
+  .n { color: var(--accent); }         /* число */
+  .f { color: #d2a8ff; }               /* Foenu-x / CMD */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--panel); color: var(--muted); font-weight: 600; }
+  ul { padding-left: 22px; color: var(--muted); }
+  li { margin-bottom: 6px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 700px) { .cols { grid-template-columns: 1fr; } }
+  footer {
+    padding: 30px 0 50px;
+    text-align: center;
+    color: var(--muted);
+    font-size: .9rem;
+  }
+  .run {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    font-family: Consolas, monospace;
+    margin-bottom: 16px;
+  }
+  .run .prompt { color: var(--green); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>Foenu-<span>x</span></h1>
+    <p class="tagline">Свой язык программирования: Pascal-стиль, текст в #скобках#, запуск команд CMD</p>
+    <div class="badges">
+      <span class="badge">расширение <b>.foenu-x</b></span>
+      <span class="badge">интерпретатор на <b>Python</b></span>
+      <span class="badge">синтаксис <b>begin / end</b></span>
+      <span class="badge">версия <b>1.0</b></span>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <h2><span class="num">01</span>Быстрый старт</h2>
+    <p class="lead">Записи файл с расширением <code>.foenu-x</code> и запусти:</p>
+    <div class="run"><span class="prompt">&gt;</span> python main.py examples\hello.foenu-x</div>
+    <p>Или открой REPL (просто <code>python main.py</code>) и печатай команды построчно.</p>
+    <pre><span class="c">// hello.foenu-x</span>
+<span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Hello, World!#</span>);</pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">02</span>Вывод</h2>
+    <p class="lead"><code>Foenu-x</code> печатает выражение, <code>text-(...)</code> превращает его в текст, <code>#...#</code> — литерал текста.</p>
+    <pre><span class="f">Foenu-x</span> <span class="n">42</span>;
+<span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Число: </span>) + <span class="n">42</span>;
+<span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Привет, </span>) + имя + <span class="k">text-</span>(<span class="s">#!</span>);</pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">03</span>Переменные</h2>
+    <p class="lead">Объявление через <code>var ... be</code>, переприсваивание через <code>:=</code>. Типы не указываются — переменная сама хранит число или текст.</p>
+    <pre><span class="k">var</span> имя <span class="k">be</span> <span class="s">#Foenu-x#</span>;
+<span class="k">var</span> число <span class="k">be</span> <span class="n">10</span>;
+
+имя := <span class="s">#Мир#</span>;
+число := число + <span class="n">1</span>;</pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">04</span>Условия и циклы</h2>
+    <div class="cols">
+      <pre><span class="k">if</span> число &gt; <span class="n">5</span> <span class="k">then</span> <span class="k">begin</span>
+  <span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Больше#</span>);
+<span class="k">end</span> <span class="k">else</span> <span class="k">begin</span>
+  <span class="f">Foenu-x</span> <span class="k">text-</span>(<span class="s">#Меньше#</span>);
+<span class="k">end</span>;</pre>
+      <pre><span class="k">var</span> счётчик <span class="k">be</span> <span class="n">3</span>;
+<span class="k">while</span> счётчик &gt; <span class="n">0</span> <span class="k">begin</span>
+  <span class="f">Foenu-x</span> счётчик;
+  счётчик := счётчик - <span class="n">1</span>;
+<span class="k">end</span>;</pre>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">05</span>Функции</h2>
+    <p class="lead">Объявление <code>function</code>, возврат через <code>return</code>. Поддерживается рекурсия.</p>
+    <pre><span class="k">function</span> факториал(n) <span class="k">begin</span>
+  <span class="k">if</span> n &lt;= <span class="n">1</span> <span class="k">then</span> <span class="k">begin</span>
+    <span class="k">return</span> <span class="n">1</span>;
+  <span class="k">end</span>;
+  <span class="k">return</span> n * факториал(n - <span class="n">1</span>);
+<span class="k">end</span>;
+
+<span class="f">Foenu-x</span> факториал(<span class="n">5</span>);   <span class="c">// 120</span></pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">06</span>Команды системы (CMD)</h2>
+    <p class="lead"><code>CMD(#...#)</code> выполняет команду оболочки (cmd / PowerShell) и печатает её вывод.</p>
+    <pre><span class="f">CMD</span>(<span class="s">#echo Hello from CMD#</span>);
+<span class="f">CMD</span>(<span class="s">#dir#</span>);
+<span class="f">CMD</span>(<span class="s">#powershell -Command "Get-Date"#</span>);</pre>
+  </div>
+</section>
+
+<section>
+  <div class="container">
+    <h2><span class="num">07</span>Синтаксис кратко</h2>
+    <table>
+      <tr><th>Конструкция</th><th>Запись</th></tr>
+      <tr><td>Комментарий</td><td><code>// текст до конца строки</code></td></tr>
+      <tr><td>Текст</td><td><code>#любой текст#</code></td></tr>
+      <tr><td>Вывод</td><td><code>Foenu-x выражение;</code></td></tr>
+      <tr><td>Превращение в текст</td><td><code>text-(выражение)</code></td></tr>
+      <tr><td>Переменная</td><td><code>var имя be значение;</code></td></tr>
+      <tr><td>Присваивание</td><td><code>имя := значение;</code></td></tr>
+      <tr><td>Условие</td><td><code>if ... then begin ... end else begin ... end;</code></td></tr>
+      <tr><td>Цикл</td><td><code>while условие begin ... end;</code></td></tr>
+      <tr><td>Функция</td><td><code>function имя(арг) begin ... end;</code></td></tr>
+      <tr><td>Возврат</td><td><code>return значение;</code></td></tr>
+      <tr><td>Команда ОС</td><td><code>CMD(#команда#);</code></td></tr>
+      <tr><td>Логика</td><td><code>and</code>, <code>or</code>, <code>not</code>, <code>true</code>, <code>false</code></td></tr>
+      <tr><td>Операторы</td><td><code>+ - * /</code>, <code>= == !=</code>, <code>&gt; &lt; &gt;= &lt;=</code>, скобки</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Foenu-x 1.0 · интерпретатор на Python · файлы <code>.foenu-x</code>
+  </div>
+</footer>
+
+</body>
+</html>

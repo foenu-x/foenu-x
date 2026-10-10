@@ -1,0 +1,20 @@
+﻿// Переменные, условия и циклы
+var имя be #Foenu-x#;
+var число be 7;
+
+Foenu-x text-(#Язык: #) + имя;
+Foenu-x text-(#Число: #) + число;
+
+if число > 5 then begin
+  Foenu-x text-(#Число больше пяти#);
+end else begin
+  Foenu-x text-(#Число меньше или равно пяти#);
+end;
+
+var счётчик be 3;
+while счётчик > 0 begin
+  Foenu-x text-(#Отсчёт: #) + счётчик;
+  счётчик := счётчик - 1;
+end;
+
+Foenu-x text-(#Готово!#);

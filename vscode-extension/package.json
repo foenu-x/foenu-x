@@ -1,0 +1,36 @@
+{
+  "name": "foenu-x",
+  "displayName": "Foenu-x",
+  "description": "Язык программирования Foenu-x: подсветка синтаксиса для файлов .foenu-x",
+  "version": "1.0.0",
+  "publisher": "foenu-x-project",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "foenu-x",
+        "aliases": [
+          "Foenu-x",
+          "foenu-x"
+        ],
+        "extensions": [
+          ".foenu-x"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "foenu-x",
+        "scopeName": "source.foenu-x",
+        "path": "./syntaxes/foenu-x.tmLanguage.json"
+      }
+    ]
+  }
+}

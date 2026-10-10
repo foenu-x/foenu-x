@@ -1,0 +1,13 @@
+﻿// Функции
+function приветствие(имя) begin
+  Foenu-x text-(#Привет, #) + имя + text-(#!#);
+end;
+
+function число_сумма(a, b) begin
+  return a + b;
+end;
+
+приветствие(#Мир#);
+приветствие(#Foenu-x#);
+
+Foenu-x число_сумма(2, 3) * 10;
